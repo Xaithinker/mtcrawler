@@ -1,0 +1,151 @@
+
+import random
+import time
+from datetime import datetime
+from lxml import etree
+from distributedCrawler.distributedCrawler.utils import randList
+from distributedCrawler.distributedCrawler.sett import setting, Settings
+from distributedCrawler.distributedCrawler.dataBase import mongo_connection
+import requests
+session = requests.Session()
+for i in range(1, 3639):
+    print('Next Page Loading...')
+    t = random.randint(5, 10)
+    time.sleep(t)
+    try:
+        url = 'https://www.xicidaili.com/nn/' + str(i)
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
+        headers = {'Host':'www.xicidaili.com', 'Referer':'https://www.xicidaili.com/nn/1', 'If-None-Match': 'W/"44be6b7e031c0e22db730f33820223b3"', 'User-Agent':user_agent}
+        r = session.get(url, headers=headers, allow_redirects=False)
+        root_node = etree.HTML(r.content.decode(r.encoding))
+        ip_list = root_node.xpath(r"//td[2]/text()")
+        port = root_node.xpath(r"//td[3]/text()")
+        type = root_node.xpath(r"//td[6]/text()")
+        assert len(ip_list) == len(port) == len(type)
+        l = len(ip_list)
+        for i in range(l):
+            dic = {
+                   'ip': '{}:{}'.format(ip_list[i],  port[i]),
+                   'type': type[i],
+                'date': datetime.utcnow()
+                }
+            print(dic)
+            mongo_connection.insert_one(dic)
+        #href = root_node.xpath(r'//*[@class="next_page"]/@href')
+        #if not href:
+        #    self.flag = False
+        #netloc = urlparse(r.url).netlo
+        #Proxy.next_url = urljoin('http://www.xicidaili.com', *href)    
+    except AssertionError as a:
+           print(f'AssertionError: {a}')
+           """ Ignore the errors"""
+    except Exception as e:
+           print(f"Other Exception detected: {e}")
+           pass
+
+
+
+"""
+{'ip': '106.15.42.179:33543', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 872985)}
+{'ip': '125.126.213.102:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 882972)}
+{'ip': '218.24.16.198:43620', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 887969)}
+{'ip': '111.177.189.34:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 892963)}
+{'ip': '112.87.68.253:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 898966)}
+{'ip': '113.121.23.184:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 908964)}
+{'ip': '111.177.160.58:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 914966)}
+{'ip': '120.83.104.115:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 919963)}
+{'ip': '125.40.109.154:31610', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 925963)}
+{'ip': '112.87.68.114:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 931967)}
+{'ip': '222.135.92.68:38094', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 937959)}
+{'ip': '120.83.108.254:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 944963)}
+{'ip': '111.177.172.77:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 950964)}
+{'ip': '112.85.168.216:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 955963)}
+{'ip': '125.126.207.8:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 962960)}
+{'ip': '61.183.233.6:54896', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 968965)}
+{'ip': '27.43.188.32:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 974966)}
+{'ip': '120.83.109.101:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 980963)}
+{'ip': '115.53.19.182:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 985967)}
+{'ip': '183.148.159.167:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 991967)}
+{'ip': '111.177.188.93:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 23, 996963)}
+{'ip': '124.226.138.140:8118', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 2964)}
+{'ip': '125.126.209.233:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 6964)}
+{'ip': '116.209.54.90:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 11960)}
+{'ip': '111.177.183.103:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 15973)}
+{'ip': '112.85.131.95:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 21964)}
+{'ip': '125.126.204.113:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 26963)}
+{'ip': '222.217.68.51:54355', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 33964)}
+{'ip': '121.233.251.142:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 38965)}
+{'ip': '112.85.167.58:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 43967)}
+{'ip': '115.219.106.222:8010', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 49960)}
+{'ip': '121.61.3.231:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 53961)}
+{'ip': '218.76.253.201:61408', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 58960)}
+{'ip': '123.206.79.196:8118', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 63973)}
+{'ip': '112.85.171.25:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 68964)}
+{'ip': '116.209.57.38:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 73966)}
+{'ip': '110.52.235.127:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 77963)}
+{'ip': '116.209.59.51:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 83968)}
+{'ip': '219.131.63.2:31847', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 89967)}
+{'ip': '58.58.213.55:8888', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 93967)}
+{'ip': '123.169.38.22:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 106963)}
+{'ip': '112.85.131.166:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 111962)}
+{'ip': '223.215.186.236:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 117964)}
+{'ip': '125.126.195.15:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 122960)}
+{'ip': '116.208.55.4:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 126965)}
+{'ip': '115.53.36.120:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 132963)}
+{'ip': '42.238.89.83:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 138962)}
+{'ip': '171.83.166.239:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 143963)}
+{'ip': '111.77.196.205:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 154964)}
+{'ip': '111.177.180.98:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 159966)}
+{'ip': '180.118.240.230:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 167963)}
+{'ip': '111.177.167.195:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 172965)}
+{'ip': '111.77.197.37:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 177965)}
+{'ip': '117.25.83.38:8118', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 182964)}
+{'ip': '121.10.71.82:8118', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 187964)}
+{'ip': '175.148.74.221:1133', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 193964)}
+{'ip': '112.85.169.154:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 198962)}
+{'ip': '27.43.189.55:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 203961)}
+{'ip': '125.123.140.197:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 209964)}
+{'ip': '125.73.220.18:31036', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 215964)}
+{'ip': '120.83.108.175:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 220965)}
+{'ip': '36.26.225.54:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 225964)}
+{'ip': '171.112.165.162:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 231962)}
+{'ip': '111.177.176.170:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 235965)}
+{'ip': '171.112.165.205:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 240967)}
+{'ip': '120.83.110.116:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 246963)}
+{'ip': '118.190.73.168:808', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 251968)}
+{'ip': '120.83.104.220:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 258965)}
+{'ip': '111.177.184.254:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 268964)}
+{'ip': '120.83.106.108:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 274962)}
+{'ip': '60.216.101.46:59351', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 281964)}
+{'ip': '171.80.172.248:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 286960)}
+{'ip': '112.85.171.8:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 292961)}
+{'ip': '49.86.178.6:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 298966)}
+{'ip': '36.26.231.177:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 304964)}
+{'ip': '111.177.183.57:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 308966)}
+{'ip': '61.187.206.207:46693', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 322963)}
+{'ip': '60.2.44.182:30963', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 326962)}
+{'ip': '113.121.23.150:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 333965)}
+{'ip': '222.173.215.170:8080', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 338965)}
+{'ip': '61.142.72.154:30074', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 343963)}
+{'ip': '27.29.44.251:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 348966)}
+{'ip': '27.29.44.149:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 361966)}
+{'ip': '110.52.235.217:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 367966)}
+{'ip': '116.210.35.248:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 373965)}
+{'ip': '27.29.44.49:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 378965)}
+{'ip': '119.102.130.29:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 383963)}
+{'ip': '119.102.130.124:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 388962)}
+{'ip': '110.52.235.175:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 394963)}
+{'ip': '110.52.235.204:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 400964)}
+{'ip': '110.52.235.188:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 404963)}
+{'ip': '221.218.102.146:33323', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 410967)}
+{'ip': '110.52.235.229:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 416963)}
+{'ip': '171.80.115.31:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 422964)}
+{'ip': '110.52.235.225:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 428965)}
+{'ip': '113.65.5.186:8118', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 433965)}
+{'ip': '116.209.55.189:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 438962)}
+{'ip': '183.166.171.5:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 443963)}
+{'ip': '163.204.245.244:9999', 'type': 'HTTPS', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 449964)}
+{'ip': '110.52.235.8:9999', 'type': 'HTTP', 'date': datetime.datetime(2019, 3, 29, 7, 4, 24, 454967)}
+Initial Successfully
+Next Page Loading...
+"""
